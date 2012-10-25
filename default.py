@@ -88,6 +88,16 @@ def getURL(url):
     ret['html'] = html 
     return ret
 
+def getRedirectUrl(url):
+    cj = cookielib.LWPCookieJar()
+    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+    opener.addheaders = [('User-Agent', 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/4.0; SLCC2;)')]
+    response = opener.open(url)
+    #print 'Is this working? ' + response.geturl()
+    ret = {}
+    ret['url'] = response.geturl() 
+    return ret
+
 # Save page locally
 '''def save_web_page(url, filename):
     f = open(os.path.join(cacheDir, filename), 'w')
@@ -344,7 +354,7 @@ def GetSources(Url):
         return
     MediaItems = []
     for Source in Sources:
-        links = re.compile('href="(.+?)">(.+?)</a>').findall(Source)
+        links = re.compile('href="([^"]+)".*?>(.+?)</a>').findall(Source)
         if not links:
             continue
         Href, Host = links[0]
@@ -554,13 +564,14 @@ def Play(Url):
     ## Mode == M_PLAY
     ## Try to get a list of playable items and play it.
     ###########################################################
-    data = cache.cacheFunction(getURL, Url)
+    '''data = cache.cacheFunction(getURL, Url)
     if not data:
         dialog = xbmcgui.Dialog()
         dialog.ok('Error', 'Error getting webpage.')
         xbmcplugin.setResolvedUrl(PluginHandle, False, xbmcgui.ListItem())
         return
     data = data['html']
+    #print data
     catitem = common.parseDOM(data, "div", {"class": "cat_item"})
     if not catitem:
         return
@@ -575,7 +586,12 @@ def Play(Url):
     Href = common.parseDOM(Movie_Link, "a", ret="href")
     if not Href:
         return
-    URL = Href[0]
+    URL = Href[0]'''
+    RedirectedUrl = cache.cacheFunction(getRedirectUrl, url)
+    if RedirectedUrl:
+        URL = RedirectedUrl['url']
+    else:
+        return
     if not urlresolver.HostedMediaFile(URL).valid_url():
         dialog = xbmcgui.Dialog()
         dialog.ok('Error', 'Host is not supported.')

@@ -1,2 +1,5 @@
+[B]Version 0.0.2[/B]
+  - Link Resolving fixed.
+  
 [B]Version 0.0.1[/B]
   - initial version
