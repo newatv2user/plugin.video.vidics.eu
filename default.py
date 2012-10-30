@@ -553,9 +553,11 @@ def Search(Url):
     search = keyb.getText()
     if not search or search == '':
         return
+    search = search.replace(' ', '%20')
     urlDict = cache.cacheFunction(GetUrlDict, Url)
     urlDict = cache.cacheFunction(GetUrlDict, None, urlDict['Category'])
     urlDict['Search'] = search
+    urlDict['Sort'] = 'Relevancy'
     URL = BuildUrl(urlDict)
     Browse(URL)
 
